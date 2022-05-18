@@ -1,35 +1,21 @@
 package main
 
 import (
-	"fmt"
 	"gorm-pg/src/config"
+	"gorm-pg/src/handler/bookHandler"
 	"log"
+	"net/http"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/gorilla/mux"
 )
 
-type Book struct {
-	Id     int    `json:"id" gorm:"primaryKey"`
-	Title  string `json:"title"`
-	Author string `json:"author"`
-	Desc   string `json:"desc"`
-}
-
 func main() {
+	db := config.InitDB()
+	h := bookHandler.New(db)
+	router := mux.NewRouter()
 
-	conf := config.New()
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
-		conf.Database.User,
-		conf.Database.Password,
-		conf.Database.Host,
-		conf.Database.Port,
-		conf.Database.Name)
+	router.HandleFunc("/books", h.GetAllBooks).Methods(http.MethodGet)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	db.AutoMigrate(&Book{})
+	log.Println("api is running")
+	http.ListenAndServe(":4000", router)
 }

@@ -18,7 +18,7 @@ type DatabaseConfiguration struct {
 	Name     string
 }
 
-func New() *Configuration {
+func NewConfiguration() *Configuration {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
